@@ -23,7 +23,7 @@ def generate_launch_description():
 
     # Get the path to the configuration files
     ros2_config_file = [
-        package_share_directory, '/config/', 'ros2_params.yaml'
+        package_share_directory, '/config/', 'simple_test.yaml'
     ]
 
     rviz_config_file = [

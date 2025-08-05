@@ -1,0 +1,21 @@
+isVerbose: true
+timer:
+  graphRate: 5.0
+  planningRate: 10.0
+map:
+  isPrebuiltMap: false
+  prebuiltMapPath: ""
+  isVoxelize: false
+  voxelSize: 0
+trg:
+  isPrebuiltTRG: false
+  prebuiltTRGPath: "prebuilt_graphs/predefined_trg_indoor.pcd"
+  isUpdate: true
+  expandDist: 0.4
+  robotSize: 0.3
+  sampleNum: 15
+  heightThreshold: 0.15
+  collisionThreshold: 0.1
+  updateCollisionThreshold: 0.1
+  safetyFactor: 3.0
+  goalTolerance: 0.8
