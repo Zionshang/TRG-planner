@@ -8,8 +8,8 @@ trg_ros2_node:
       topic:
         input:
           egoPose: "/trg/input/default_pose"
-          egoOdom: "/lidar_odometry"
-          obsCloud: "/mujoco_lidar_points"
+          egoOdom: "/odom"
+          obsCloud: "/points_e1r_front"
           goal: "/fake_goal"
         output:
           preMap: "/trg/output/default_preMap"

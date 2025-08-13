@@ -287,9 +287,6 @@ void ROS2Node::vizGraph(std::string                                          typ
     float z_offset = 0.15;
 
     for (const auto &node : nodes) {
-      if (node.second->state_ == TRG::NodeState::Invalid) {
-        continue;
-      }
       geometry_msgs::msg::Point p;
       p.x = node.second->pos_.x();
       p.y = node.second->pos_.y();
@@ -300,6 +297,11 @@ void ROS2Node::vizGraph(std::string                                          typ
         color.r = 1.0;
         color.g = 0.0;
         color.b = 0.0;
+        color.a = 1.0;
+      } else if (node.second->state_ == TRG::NodeState::Invalid) {
+        color.r = 0.6;
+        color.g = 0.6;
+        color.b = 0.6;
         color.a = 1.0;
       } else {
         color.r = 0.0;

@@ -45,11 +45,14 @@ void TRG::initGraph(bool isPreMap, Eigen::Vector3f start3d = Eigen::Vector3f::Ze
   Eigen::Vector2f root_pos = graph.root_pos;
   root_pos.x()             = root_pos.x() + param_.expand_dist;
   int cnt                  = 0;
+  // 为全局图寻找一个“有效”的根节点（id=0），避免一开始就落在碰撞/不可用位置
+  // addNode 在 node_id==0 时会先做碰撞检测（isCollision）；若碰撞则返回 false。
   while (!this->addNode(graph.node_id, root_pos, NodeState::Valid, graph.type)) {
     if (cnt > 100) {
       print_error("Failed to generate root node");
       exit(1);
     }
+    // 若失败就施加随机微扰，反复尝试直到找到不碰撞的位置并成功插入节点。
     root_pos = root_pos + Eigen::Vector2f(param_.expand_dist * distr_(gen_),
                                           param_.expand_dist * distr_(gen_));
     cnt++;
@@ -637,12 +640,18 @@ void TRG::resetMap(std::string type) {
 
 bool TRG::isCollision(Eigen::Vector2f& pos, std::string type, float threshold = 0.1) {
   trgStruct& graph = *trgMap_[type];
+
+  // 1. 空间范围查询
+  // 首先使用KD-tree在指定位置周围进行范围查询，查询半径为param_.robot_size（机器人尺寸）。
+  // 如果查询范围内没有点云数据，则直接判定为碰撞。
   kdres*     res   = kd_nearest_range2(graph.map_tree, pos.x(), pos.y(), param_.robot_size);
   if (kd_res_size(res) == 0) {
     kd_res_free(res);
     return true;
   }
 
+  // 2. 高度中位数计算
+  // 收集到范围内的所有点云后，系统对这些点按z坐标（高度）进行排序，计算中位数高度z_med作为参考基准
   std::vector<PtsDefault*> pts;
   float                    z_med = 0.0;
   while (!kd_res_end(res)) {
@@ -655,6 +664,8 @@ bool TRG::isCollision(Eigen::Vector2f& pos, std::string type, float threshold = 
   std::sort(pts.begin(), pts.end(), [](PtsDefault* a, PtsDefault* b) { return a->z < b->z; });
   z_med = pts[pts.size() / 2]->z;
 
+  // 3. 高度偏差统计
+  // 遍历所有点云，统计与中位数高度差异超过param_.height_threshold的点的数量。
   int total = pts.size();
   int cnt   = 0;
   for (auto& pt : pts) {
@@ -662,6 +673,9 @@ bool TRG::isCollision(Eigen::Vector2f& pos, std::string type, float threshold = 
       cnt++;
     }
   }
+
+  // 4. 碰撞判定
+  // 计算高度偏差点的比例，超过传入的阈值参数则判定为碰撞。
   float ratio = static_cast<float>(cnt) / total;
   if (ratio > threshold) {
     return true;

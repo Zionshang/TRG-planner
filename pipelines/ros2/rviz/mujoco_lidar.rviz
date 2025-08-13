@@ -6,6 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Axes1
+        - /Odometry1
         - /Odometry1/Shape1
       Splitter Ratio: 0.5
     Tree Height: 719
@@ -34,7 +36,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz_default_plugins/Grid
       Color: 160; 160; 164
-      Enabled: false
+      Enabled: true
       Line Style:
         Line Width: 0.029999999329447746
         Value: Lines
@@ -47,12 +49,12 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
-      Value: false
+      Value: true
     - Class: rviz_default_plugins/Axes
       Enabled: true
-      Length: 1
+      Length: 0.10000000149011612
       Name: Axes
-      Radius: 0.10000000149011612
+      Radius: 0.05000000074505806
       Reference Frame: <Fixed Frame>
       Value: true
     - Angle Tolerance: 0.10000000149011612
@@ -78,8 +80,8 @@ Visualization Manager:
       Position Tolerance: 0.10000000149011612
       Shape:
         Alpha: 1
-        Axes Length: 1
-        Axes Radius: 0.5
+        Axes Length: 0.10000000149011612
+        Axes Radius: 0.05000000074505806
         Color: 255; 25; 0
         Head Length: 0.30000001192092896
         Head Radius: 0.10000000149011612
@@ -92,7 +94,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /lidar_odometry
+        Value: /odom
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
@@ -132,7 +134,7 @@ Visualization Manager:
       Enabled: true
       Name: globalTRG
       Namespaces:
-        "": true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -244,7 +246,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /mujoco_lidar_points
+        Value: /points_e1r_front
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -294,25 +296,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 26.02824592590332
+      Distance: 14.172974586486816
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 7.684614658355713
-        Y: 1.114027738571167
-        Z: -9.019074440002441
+        X: 5.106484413146973
+        Y: 5.043054580688477
+        Z: -6.792289733886719
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9547963738441467
+      Pitch: 0.7597966194152832
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.3603978157043457
+      Yaw: 4.110405921936035
     Saved: ~
 Window Geometry:
   Displays:

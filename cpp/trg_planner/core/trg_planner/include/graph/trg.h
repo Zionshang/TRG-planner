@@ -104,7 +104,7 @@ class TRG {
 
     std::unordered_map<int, Node*> nodes;
     kdtree*                        node_tree = kd_create(2);
-    int                            node_id;
+    int                            node_id;  // 用于生成新节点的ID
     Eigen::Vector2f                root_pos = Eigen::Vector2f::Zero();
 
     kdtree*       map_tree  = kd_create(2);
@@ -131,9 +131,9 @@ class TRG {
 
   struct Param {
     bool  isVerbose                  = true;
-    float expand_dist                = 0.5;
+    float expand_dist                = 0.5; // Sampling radius
     float robot_size                 = 0.5;
-    int   sample_num                 = 20;
+    int   sample_num                 = 20;  // Number of samples per node
     float height_threshold           = 0.5;
     float collision_threshold        = 0.5;
     float update_collision_threshold = 0.5;
