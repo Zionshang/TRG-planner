@@ -6,6 +6,8 @@
 
 #include "ros2_utils.hpp"
 
+#include "trg_planner/tracker/tracker.h"
+
 class ROS2Node : public TRGPlanner {
  public:
   explicit ROS2Node(const rclcpp::Node::SharedPtr &node);
@@ -19,6 +21,7 @@ class ROS2Node : public TRGPlanner {
 
   void publishTimer();
   void debugTimer();
+  void trackerTimer();
 
  protected:
   //// ROS2 Node
@@ -35,6 +38,7 @@ class ROS2Node : public TRGPlanner {
     rclcpp::Publisher<ROS2Types::PointCloud>::SharedPtr pre_map_;
     rclcpp::Publisher<ROS2Types::PointCloud>::SharedPtr goal_;
     rclcpp::Publisher<ROS2Types::Path>::SharedPtr       path_;
+    rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_;
   } pub;
   struct Debug {
     rclcpp::Publisher<ROS2Types::MarkerArray>::SharedPtr global_trg_;
@@ -53,6 +57,7 @@ class ROS2Node : public TRGPlanner {
     std::string frame_id;
     float       publish_rate;
     float       debug_rate;
+    float       tracker_rate; // Hz
   } param_;
 
   std::unordered_map<std::string, std::string> topics_;
@@ -71,6 +76,10 @@ class ROS2Node : public TRGPlanner {
     geometry_msgs::msg::TransformStamped        tfStamped;
     bool                                        isTFCached = false;
   } tf_cache;
+
+  OmniPathTracker tracker_;
+  OmniPathTracker::Params tracker_params_;
+  rclcpp::TimerBase::SharedPtr tracker_timer_;
 
   void vizGraph(std::string type, rclcpp::Publisher<ROS2Types::MarkerArray>::SharedPtr pub);
 };

@@ -15,7 +15,7 @@ def generate_launch_description():
                                      description='Whether to launch RViz')
     map_config_arg = DeclareLaunchArgument(
         'map',
-        default_value='mountain',
+        default_value='indoor',
         description='Configuration file to use')
 
     # Get the path to the configuration files

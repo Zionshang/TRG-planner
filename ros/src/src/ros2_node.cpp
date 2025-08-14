@@ -20,6 +20,7 @@ ROS2Node::ROS2Node(const rclcpp::Node::SharedPtr &node) : n_(node) {
   pub.pre_map_ = n_->create_publisher<ROS2Types::PointCloud>(topics_["preMap"], 1);
   pub.goal_    = n_->create_publisher<ROS2Types::PointCloud>(topics_["outGoal"], 1);
   pub.path_    = n_->create_publisher<ROS2Types::Path>(topics_["path"], 1);
+  pub.cmd_vel_ = n_->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 1);
 
   debug.global_trg_ = n_->create_publisher<ROS2Types::MarkerArray>(topics_["globalTRG"], 1);
   debug.local_trg_  = n_->create_publisher<ROS2Types::MarkerArray>(topics_["localTRG"], 1);
@@ -34,6 +35,12 @@ ROS2Node::ROS2Node(const rclcpp::Node::SharedPtr &node) : n_(node) {
   if (param_.isDebug) {
     thd.debug = std::thread(&ROS2Node::debugTimer, this);
   }
+
+  // Tracker timer
+  if (param_.tracker_rate > 0) {
+    auto period    = std::chrono::duration<double>(1.0 / param_.tracker_rate);
+    tracker_timer_ = n_->create_wall_timer(period, std::bind(&ROS2Node::trackerTimer, this));
+  }
 }
 
 ROS2Node::~ROS2Node() { thd.publish.join(); }
@@ -43,6 +50,7 @@ void ROS2Node::getParams(const rclcpp::Node::SharedPtr &n_) {
   n_->declare_parameter<std::string>("ros2.frameId", "map");
   n_->declare_parameter<float>("ros2.publishRate", 1.0f);
   n_->declare_parameter<float>("ros2.debugRate", 1.0f);
+  n_->declare_parameter<float>("ros2.tracker.rate", 30.0f);  // tracker frequency
 
   n_->declare_parameter<std::string>("ros2.topic.input.egoPose",
                                      "/trg_ros2_node/input/default_ego_pose");
@@ -72,6 +80,7 @@ void ROS2Node::getParams(const rclcpp::Node::SharedPtr &n_) {
   n_->get_parameter("ros2.frameId", param_.frame_id);
   n_->get_parameter("ros2.publishRate", param_.publish_rate);
   n_->get_parameter("ros2.debugRate", param_.debug_rate);
+  n_->get_parameter("ros2.tracker.rate", param_.tracker_rate);
 
   n_->get_parameter("ros2.topic.input.egoPose", topics_["egoPose"]);
   n_->get_parameter("ros2.topic.input.egoOdom", topics_["egoOdom"]);
@@ -205,6 +214,8 @@ void ROS2Node::publishTimer() {
     if (TRGPlanner::flag_.pathFound) {
       TRGPlanner::flag_.pathFound = false;
       publishPath(n_, TRGPlanner::state_.frame_id, TRGPlanner::path_.smooth, pub.path_);
+      // set path to tracker immediately
+      tracker_.setPath(TRGPlanner::path_.smooth);
       ROS2Types::FloatArray path_info_msg;
       path_info_msg.data.push_back(TRGPlanner::path_.direct_dist);
       path_info_msg.data.push_back(TRGPlanner::path_.raw_path_length);
@@ -230,6 +241,47 @@ void ROS2Node::publishTimer() {
     }
     thd.hz["publish"] = std::round(1000 / toc(start_loop, "ms") * 100) / 100;
   }
+}
+
+void ROS2Node::trackerTimer() {
+  // Acquire robot state snapshot
+  Eigen::Vector3f pose3d;
+  Eigen::Vector4f quat;
+  {
+    std::lock_guard<std::mutex> lock(TRGPlanner::mtx.odom);
+    pose3d = TRGPlanner::state_.pose3d;
+    quat   = TRGPlanner::state_.quat;
+  }
+
+  auto quatToZyx = [](const auto &q) {
+    using Scalar = typename std::decay<decltype(q.x())>::type;
+    Eigen::Vector3<Scalar> zyx;  // ordering in ZYX: yaw, pitch, roll
+
+    Scalar as = std::min(static_cast<Scalar>(-2. * (q.x() * q.z() - q.w() * q.y())),
+                         static_cast<Scalar>(.99999));
+    zyx(0)    = std::atan2(2 * (q.x() * q.y() + q.w() * q.z()),
+                        q.w() * q.w() + q.x() * q.x() - q.y() * q.y() - q.z() * q.z());
+    zyx(1)    = std::asin(as);
+    zyx(2)    = std::atan2(2 * (q.y() * q.z() + q.w() * q.x()),
+                        q.w() * q.w() - q.x() * q.x() - q.y() * q.y() + q.z() * q.z());
+    return zyx;
+  };
+
+  // Extract yaw from quaternion
+  Eigen::Quaternionf q(quat.data());
+  Eigen::Vector3f    eul = quatToZyx(q);
+  float              yaw = eul[0];
+
+  // For simplicity current velocity/yaw rate set zero (can be replaced with odom twist)
+  Eigen::Vector3f           v_w      = Eigen::Vector3f::Zero();
+  float                     yaw_rate = 0.0f;
+  float                     dt       = 1 / param_.tracker_rate;
+  auto                      cmd      = tracker_.computeCommand(pose3d, yaw, v_w, yaw_rate, dt);
+  geometry_msgs::msg::Twist twist;
+  twist.linear.x  = cmd.vx;
+  twist.linear.y  = cmd.vy;
+  twist.angular.z = cmd.w;
+  pub.cmd_vel_->publish(twist);
 }
 
 void ROS2Node::debugTimer() {
