@@ -9,8 +9,8 @@
 #ifndef CPP_TRG_PLANNER_CORE_TRG_PLANNER_INCLUDE_PLANNER_TRG_PLANNER_H_
 #define CPP_TRG_PLANNER_CORE_TRG_PLANNER_INCLUDE_PLANNER_TRG_PLANNER_H_
 
-#include "trg_planner/include/graph/trg.h"
-#include "trg_planner/include/utils/common.h"
+#include "trg_planner/graph/trg.h"
+#include "trg_planner/utils/common.h"
 
 template <typename State>
 class FSM {

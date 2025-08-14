@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "trg_planner/include/utils/common.h"
+#include "trg_planner/utils/common.h"
 
 //// ROS1
 #include <ament_index_cpp/get_package_share_directory.hpp>

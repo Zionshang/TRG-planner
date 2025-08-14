@@ -6,7 +6,7 @@
  * Authors: Dongkyu Lee, et al.
  * See LICENSE for the license information
  */
-#include "trg_planner/include/graph/trg.h"
+#include "trg_planner/graph/trg.h"
 
 TRG::TRG(bool  isVerbose,
          float expand_dist,

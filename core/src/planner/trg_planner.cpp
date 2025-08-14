@@ -6,7 +6,7 @@
  * Authors: Dongkyu Lee, et al.
  * See LICENSE for the license information
  */
-#include "trg_planner/include/planner/trg_planner.h"
+#include "trg_planner/planner/trg_planner.h"
 
 TRGPlanner::TRGPlanner() {}
 TRGPlanner::~TRGPlanner() {
@@ -65,7 +65,8 @@ void TRGPlanner::loadPrebuiltMap() {
     exit(1);
   }
 
-  std::string                 abs_path = std::string(TRG_DIR) + "/../../" + param_.preMapPath;
+  std::string                 abs_path = std::string(TRG_DIR) + "/../" + param_.preMapPath;
+  std::cout << "Loading prebuilt map from: " << abs_path << std::endl;
   pcl::PointCloud<PtsDefault> rawMap   = pcl::PointCloud<PtsDefault>();
   if (pcl::io::loadPCDFile<PtsDefault>(abs_path, rawMap) == -1) {
     print_error("Failed to load prebuilt map");

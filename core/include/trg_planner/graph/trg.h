@@ -9,8 +9,8 @@
 #ifndef CPP_TRG_PLANNER_CORE_TRG_PLANNER_INCLUDE_GRAPH_TRG_H_
 #define CPP_TRG_PLANNER_CORE_TRG_PLANNER_INCLUDE_GRAPH_TRG_H_
 
-#include "trg_planner/include/kdtree/kdtree.h"
-#include "trg_planner/include/utils/common.h"
+#include "trg_planner/kdtree/kdtree.h"
+#include "trg_planner/utils/common.h"
 
 #define EPS 1e-6
 const Eigen::Vector3f gravity(0, 0, -1);

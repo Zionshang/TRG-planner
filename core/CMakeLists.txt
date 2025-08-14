@@ -27,26 +27,24 @@ find_package(yaml-cpp REQUIRED)
 # Planner class library
 set(TARGET_NAME trg_planner_core)
 add_library(${TARGET_NAME} STATIC
-    ${CMAKE_CURRENT_LIST_DIR}/core/trg_planner/src/kdtree/kdtree.c
-    ${CMAKE_CURRENT_LIST_DIR}/core/trg_planner/src/planner/trg_planner.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/trg_planner/src/graph/trg.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/kdtree/kdtree.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/planner/trg_planner.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/graph/trg.cpp
 )
 
 target_link_libraries(${TARGET_NAME}
     ${PCL_LIBRARIES}
     ${EIGEN3_LIBRARIES}
     ${OpenCV_LIBRARIES}
-    yaml-cpp
+    yaml-cpp::yaml-cpp
 )
 
 target_include_directories(${TARGET_NAME}
-    PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/core/
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/core>
-    $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}
 )
 
 set(CMAKE_INSTALL_LIBDIR lib)
@@ -62,7 +60,7 @@ install(EXPORT ${PROJECT_NAME}-export
     FILE ${PROJECT_NAME}Targets.cmake
 )
 
-install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/core/trg_planner DESTINATION include)
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/ DESTINATION include)
 
 export(TARGETS ${MYPROJECT_EXPORTED_TARGETS} FILE ${PROJECT_NAME}-exports.cmake)
 

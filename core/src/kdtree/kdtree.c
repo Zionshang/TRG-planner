@@ -29,7 +29,7 @@ OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "trg_planner/include/kdtree/kdtree.h"
+#include "trg_planner/kdtree/kdtree.h"
 
 #if defined(WIN32) || defined(__WIN32__)
 #include <malloc.h>
